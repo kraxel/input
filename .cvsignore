@@ -1,0 +1,13 @@
+Make.config
+BTN.h
+BUS.h
+EV.h
+KEY.h
+REL.h
+lircd.conf
+input-events
+input-kbd
+input-recv
+input-send
+lsinput
+
