@@ -3,6 +3,7 @@ INPUT="linux-input.h"
 cat <<EOF
 begin remote
 	name linux-input-layer
+	bits 32
 	begin codes
 EOF
 awk "
