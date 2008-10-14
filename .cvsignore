@@ -4,6 +4,12 @@ BUS.h
 EV.h
 KEY.h
 REL.h
+ABS.h
+LED.h
+MSC.h
+REP.h
+SND.h
+SW.h
 lircd.conf
 input-events
 input-kbd
