@@ -4,14 +4,13 @@
 #include "linux-input.h"
 
 #define ev_name(code)  ((code) < EV_MAX  && EV_NAME[code]  ? EV_NAME[code]  : "???")
-#define rel_name(code) ((code) < REL_MAX && REL_NAME[code] ? REL_NAME[code] : "???")
-#define key_name(code) ((code) < KEY_MAX && KEY_NAME[code] ? KEY_NAME[code] : "???")
+#define ev_type_name(type, code) ((code) < EV_TYPE_MAX[type] && EV_TYPE_NAME[type][code] ? EV_TYPE_NAME[type][code] : "???")
 
 #define BITFIELD uint32_t
 
-extern char *EV_NAME[EV_MAX];
-extern char *REL_NAME[REL_MAX];
-extern char *KEY_NAME[KEY_MAX];
+extern char *EV_NAME[EV_CNT];
+extern int EV_TYPE_MAX[EV_CNT];
+extern char **EV_TYPE_NAME[EV_CNT];
 extern char *BUS_NAME[];
 
 static __inline__ int test_bit(int nr, BITFIELD * addr)

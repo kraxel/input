@@ -8,7 +8,7 @@ LDLIBS	+= -lm
 
 # build
 TARGETS	:= lsinput input-events input-kbd input-send input-recv lircd.conf
-HEADERS	:= EV.h REL.h KEY.h BTN.h BUS.h
+HEADERS	:= EV.h REL.h ABS.h MSC.h LED.h SND.h REP.h KEY.h BTN.h BUS.h SW.h
 
 # default target
 all: build

@@ -77,7 +77,7 @@ static int kbd_map_write(int fh, struct kbd_map *map)
 static void kbd_key_print(FILE *fp, int scancode, int keycode)
 {
 	fprintf(fp, "0x%04x = %3d  # %s\n",
-		scancode, keycode, key_name(keycode));
+		scancode, keycode, ev_type_name(EV_KEY, keycode));
 }
 
 static void kbd_map_print(FILE *fp, struct kbd_map *map, int complete)
@@ -118,9 +118,9 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 
 		/* parse keycode */
 		for (i = 0; i < KEY_MAX; i++) {
-			if (!KEY_NAME[i])
+			if (!EV_TYPE_NAME[EV_KEY][i])
 				continue;
-			if (0 == strcmp(keycode,KEY_NAME[i]))
+			if (0 == strcmp(keycode,EV_TYPE_NAME[EV_KEY][i]))
 				break;
 		}
 		if (i == KEY_MAX)
@@ -139,7 +139,7 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 
 static void kbd_print_bits(int fd)
 {
-	BITFIELD bits[KEY_MAX/sizeof(BITFIELD)];
+	BITFIELD bits[KEY_CNT/sizeof(BITFIELD)];
 	int rc,bit;
 
 	rc = ioctl(fd,EVIOCGBIT(EV_KEY,sizeof(bits)),bits);
@@ -148,8 +148,8 @@ static void kbd_print_bits(int fd)
 	for (bit = 0; bit < rc*8 && bit < KEY_MAX; bit++) {
 		if (!test_bit(bit,bits))
 			continue;
-		if (KEY_NAME[bit]) {
-			fprintf(stderr,"bits: %s\n", KEY_NAME[bit]);
+		if (EV_TYPE_NAME[EV_KEY][bit]) {
+			fprintf(stderr,"bits: %s\n", EV_TYPE_NAME[EV_KEY][bit]);
 		} else {
 			fprintf(stderr,"bits: unknown [%d]\n", bit);
 		}

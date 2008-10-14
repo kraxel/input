@@ -1,7 +1,7 @@
 #
 # simple autoconf system for GNU make
 #
-# (c) 2002,2003 Gerd Knorr <kraxel@bytesex.org>
+# (c) 2002-2006 Gerd Hoffmann <kraxel@suse.de>
 #
 # credits for creating this one go to the autotools people because
 # they managed it to annoy lots of developers and users (including
@@ -24,7 +24,7 @@ ifneq ($(verbose),no)
   ac_fini	= echo "... result is $${rc}" >&2; echo >&2; echo "$${rc}"
 else
   # normal
-  ac_init	= echo -ne "checking $(1) ... " >&2; rc=no
+  ac_init	= echo -n "checking $(1) ... " >&2; rc=no
   ac_b_cmd	= $(1) >/dev/null 2>&1 && rc=yes
   ac_s_cmd	= rc=`$(1) 2>/dev/null`
   ac_fini	= echo "$${rc}" >&2; echo "$${rc}"
@@ -47,14 +47,32 @@ ac_uname = $(shell \
 	$(call ac_s_cmd,uname -s | tr 'A-Z' 'a-z');\
 	$(call ac_fini))
 
+ac_uname_arch = $(shell \
+	$(call ac_init,for arch);\
+	$(call ac_s_cmd,uname -m | tr 'A-Z' 'a-z');\
+	$(call ac_fini))
+
 # check for some header file
+# args: header file
 ac_header = $(shell \
 	$(call ac_init,for $(1));\
 	$(call ac_b_cmd,echo '\#include <$(1)>' |\
 		$(CC) $(CFLAGS) -E -);\
 	$(call ac_fini))
 
+# check for some function
+# args: function [, additional libs ]
+ac_func = $(shell \
+	$(call ac_init,for $(1));\
+	echo 'void $(1)(void); int main(void) {$(1)();return 0;}' \
+		> __actest.c;\
+	$(call ac_b_cmd,$(CC) $(CFLAGS) $(LDFLAGS) -o \
+		__actest __actest.c $(2));\
+	rm -f __actest __actest.c;\
+	$(call ac_fini))
+
 # check for some library
+# args: function, library [, additional libs ]
 ac_lib = $(shell \
 	$(call ac_init,for $(1) in $(2));\
 	echo 'void $(1)(void); int main(void) {$(1)();return 0;}' \
@@ -65,15 +83,18 @@ ac_lib = $(shell \
 	$(call ac_fini))
 
 # check if some compiler flag works
+# args: compiler flag
 ac_cflag = $(shell \
-	$(call ac_init,if $(CC) supports $(1));\
+	$(call ac_init,for $(CC) cflags);\
 	echo 'int main() {return 0;}' > __actest.c;\
 	$(call ac_b_cmd,$(CC) $(CFLAGS) $(1) $(LDFLAGS) -o \
 		__actest __actest.c);\
 	rm -f __actest __actest.c;\
+	if test "$${rc}" = "yes"; then rc="$(1)"; else rc="$(2)"; fi;\
 	$(call ac_fini))
 
 # check for some binary
+# args: binary name
 ac_binary = $(shell \
 	$(call ac_init,for $(1));\
 	$(call ac_s_cmd,which $(1));\
@@ -82,17 +103,41 @@ ac_binary = $(shell \
 	$(call ac_fini))
 
 # check if lib64 is used
+#ac_lib64 = $(shell \
+#	$(call ac_init,for libdir name);\
+#	$(call ac_s_cmd,$(CC) -print-search-dirs | grep -q lib64 &&\
+#		echo "lib64" || echo "lib");\
+#	$(call ac_fini))
 ac_lib64 = $(shell \
 	$(call ac_init,for libdir name);\
-	$(call ac_s_cmd,$(CC) -print-search-dirs | grep -q lib64 &&\
+	$(call ac_s_cmd,/sbin/ldconfig -p | grep -q lib64 &&\
 		echo "lib64" || echo "lib");\
 	$(call ac_fini))
 
 # check for x11 ressource dir prefix
 ac_resdir = $(shell \
 	$(call ac_init,for X11 app-defaults prefix);\
-	$(call ac_s_cmd, test -d /etc/X11/app-defaults &&\
-		echo "/etc/X11" || echo "/usr/X11R6/lib/X11");\
+	$(call ac_s_cmd, for dir in \
+		/etc/X11/app-defaults \
+		/usr/X11R6/lib/X11/app-defaults \
+		/usr/share/X11/app-defaults \
+		/usr/lib/X11/app-defaults \
+		; do test -d "$$dir" || continue;\
+		dirname "$$dir"; break; done);\
+	$(call ac_fini))
+
+# check if package is installed, via pkg-config
+# args: pkg name
+ac_pkg_config = $(shell \
+	$(call ac_init,for $(1) (using pkg-config));\
+	$(call ac_b_cmd, pkg-config $(1));\
+	$(call ac_fini))
+
+# grep some file
+# args: regex, file
+ac_grep = $(shell \
+	$(call ac_init,for $(1) in $(2));\
+	$(call ac_b_cmd, grep -q $(1) $(2));\
 	$(call ac_fini))
 
 
@@ -116,9 +161,8 @@ endif
 config: Make.config
 	@true
 
-Make.config: GNUmakefile
+Make.config: $(srcdir)/GNUmakefile
 	@echo -e "$(make-config-q)" > $@
 	@echo
 	@echo "Make.config written, edit if needed"
 	@echo
-
