@@ -96,17 +96,6 @@ int device_open(int nr, int verbose)
 	if (verbose)
 		fprintf(stderr,"%s\n",filename);
 
-	if (-1 == ioctl(fd,EVIOCGVERSION,&version)) {
-		perror("ioctl EVIOCGVERSION");
-		close(fd);
-		return -1;
-	}
-	if (EV_VERSION > version) {
-		fprintf(stderr, "protocol version mismatch (expected >= %d, got %d)\n",
-			EV_VERSION, version);
-		close(fd);
-		return -1;
-	}
 	return fd;
 }
 
