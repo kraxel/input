@@ -101,8 +101,8 @@ int device_open(int nr, int verbose)
 		close(fd);
 		return -1;
 	}
-	if (EV_VERSION != version) {
-		fprintf(stderr, "protocol version mismatch (expected %d, got %d)\n",
+	if (EV_VERSION > version) {
+		fprintf(stderr, "protocol version mismatch (expected >= %d, got %d)\n",
 			EV_VERSION, version);
 		close(fd);
 		return -1;
