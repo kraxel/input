@@ -27,7 +27,7 @@ LIST_HEAD(connections);
 static void conn_new(void)
 {
 	struct connection  *conn;
-	int len;
+	unsigned int len;
 
 	conn = malloc(sizeof(conn));
 	memset(conn,0,sizeof(conn));

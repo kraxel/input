@@ -83,7 +83,7 @@ char *BUS_NAME[] = {
 int device_open(int nr, int verbose)
 {
 	char filename[32];
-	int fd, version;
+	int fd;
 
 	snprintf(filename,sizeof(filename),
 		 "/dev/input/event%d",nr);
