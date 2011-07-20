@@ -179,7 +179,6 @@ static int usage(char *prog, int error)
 
 int main(int argc, char *argv[])
 {
-	int grab     =  0;
 	char *addr   = NULL;
 	char *port   = "1234";
 	int c,devnr;
@@ -190,7 +189,7 @@ int main(int argc, char *argv[])
 	ask.ai_socktype = SOCK_STREAM;
 
 	for (;;) {
-		if (-1 == (c = getopt(argc, argv, "hdgt:")))
+		if (-1 == (c = getopt(argc, argv, "hdt:")))
 			break;
 		switch (c) {
 		case 'd':
@@ -199,9 +198,6 @@ int main(int argc, char *argv[])
 			break;
 		case 't':
 			timeout = atoi(optarg);
-			break;
-		case 'g':
-			grab = 1;
 			break;
 		case 'h':
 			usage(argv[0],0);
