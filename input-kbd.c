@@ -50,7 +50,6 @@ static struct kbd_map* kbd_map_read(int fd, unsigned int version)
 			entry.keycode  = KEY_RESERVED;
 			rc = ioctl(fd, EVIOCGKEYCODE, &entry);
 			if (rc < 0) {
-				map->size--;
 				break;
 			}
 		} else {
