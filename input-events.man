@@ -1,7 +1,7 @@
 .TH INPUT-EVENTS 8 "July 2005" "" ""
 .SH NAME
 
-input-events \- list input devices
+input-events \- print input events
 
 .SH SYNOPSIS
 \fBinput\-events \fR [\fB\-t\fR\ \fIsec\fR] [\fB\-g\fR]\ \fIdevnr\fR
