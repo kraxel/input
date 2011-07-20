@@ -1,5 +1,5 @@
 #!/bin/sh
-INPUT="linux-input.h"
+INPUT="/usr/include/linux/input.h"
 cat <<EOF
 begin remote
 	name linux-input-layer

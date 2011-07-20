@@ -1,7 +1,7 @@
 #include <inttypes.h>
 
 #include <sys/ioctl.h>
-#include "linux-input.h"
+#include <linux/input.h>
 
 #define ev_name(code)  ((code) < EV_MAX  && EV_NAME[code]  ? EV_NAME[code]  : "???")
 #define ev_type_name(type, code) ((code) < EV_TYPE_MAX[type] && EV_TYPE_NAME[type][code] ? EV_TYPE_NAME[type][code] : "???")

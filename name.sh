@@ -1,7 +1,7 @@
 #!/bin/sh
 
 TYPE="$1"
-INPUT="linux-input.h"
+INPUT="/usr/include/linux/input.h"
 
 awk "
 	/EV_VERSION/	{ next };
