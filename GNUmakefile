@@ -4,7 +4,6 @@ include mk/Variables.mk
 
 # add our flags + libs
 CFLAGS	+= -DVERSION='"$(VERSION)"'
-LDLIBS	+= -lm
 
 # build
 TARGETS	:= lsinput input-events input-kbd input-send input-recv lircd.conf
