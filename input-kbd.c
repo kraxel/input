@@ -127,8 +127,9 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 	struct kbd_entry entry;
 	char line[80],scancode[80],keycode[80];
 	int i;
+	int idx = 0;
 
-	while (NULL != fgets(line,sizeof(line),fp)) {
+	while ((NULL != fgets(line,sizeof(line),fp)) && (idx < map->keys)) {
 		if (2 != sscanf(line," %80s = %80s", scancode, keycode)) {
 			fprintf(stderr,"parse error: %s",line);
 			return -1;
@@ -140,10 +141,10 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 		} else {
 			entry.scancode = strtol(scancode, NULL, 10);
 		}
-		if (entry.scancode <  0 ||
-		    entry.scancode >= map->size) {
-			fprintf(stderr,"scancode %d out of range (0-%d)\n",
-				entry.scancode,map->size);
+
+		if (entry.scancode <  0) {
+			fprintf(stderr,"scancode %d invalid\n",
+				entry.scancode);
 			return -1;
 		}
 
@@ -161,7 +162,7 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 
 		fprintf(stderr,"set: ");
 		kbd_key_print(stderr,entry.scancode,entry.keycode);
-		map->map[entry.scancode] = entry;
+		map->map[idx++] = entry;
 	}
 	return 0;
 }
