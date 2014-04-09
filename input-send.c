@@ -29,8 +29,8 @@ static void conn_new(void)
 	struct connection  *conn;
 	unsigned int len;
 
-	conn = malloc(sizeof(conn));
-	memset(conn,0,sizeof(conn));
+	conn = malloc(sizeof(*conn));
+	memset(conn,0,sizeof(*conn));
 	len = sizeof(conn->peer);
 	conn->socket = accept(slisten,(struct sockaddr*)&conn->peer,&len);
 	if (-1 == conn->socket) {
