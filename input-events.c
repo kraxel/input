@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -21,7 +22,7 @@ static void show_events(int nr, int timeout, int grab)
 	fd = device_open(nr,1);
 	if (-1 == fd)
 		return;
-	device_info(fd);
+	device_info(nr, fd, true);
 
 	if (grab) {
 		if (-1 == ioctl(fd,EVIOCGRAB,1)) {

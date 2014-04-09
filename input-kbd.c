@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -186,11 +187,11 @@ static void kbd_print_bits(int fd)
 	}
 }
 
-static void show_kbd(int fd, unsigned int protocol_version)
+static void show_kbd(int nr, int fd, unsigned int protocol_version)
 {
 	struct kbd_map *map;
 
-	device_info(fd);
+	device_info(nr, fd, true);
 
 	map = kbd_map_read(fd, protocol_version);
 	if (map)
@@ -278,7 +279,7 @@ int main(int argc, char *argv[])
 	if (mapfile)
 		set_kbd(fd, protocol_version, mapfile);
 	else
-		show_kbd(fd, protocol_version);
+		show_kbd(devnr, fd, protocol_version);
 
 	rc = EXIT_SUCCESS;
 

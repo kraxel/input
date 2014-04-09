@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -80,7 +81,7 @@ char *BUS_NAME[] = {
 
 /* ------------------------------------------------------------------ */
 
-int device_open(int nr, int verbose)
+int device_open(int nr, bool verbose)
 {
 	char filename[32];
 	int fd;
@@ -99,41 +100,84 @@ int device_open(int nr, int verbose)
 	return fd;
 }
 
-void device_info(int fd)
+int device_info(int nr, int fd, bool verbose)
 {
 	struct input_id id;
-	BITFIELD bits[32];
-	char buf[32];
-	int rc,bit;
+	char name[64];
+	char phys[64];
+	char buf[64];
+	BITFIELD evtmap[32];
+        BITFIELD bitmap[256];
+	int rc, pos, evts, evt, bits, bit, count;
 
 	rc = ioctl(fd,EVIOCGID,&id);
-	if (rc >= 0)
-		fprintf(stderr,
-			"   bustype : %s\n"
-			"   vendor  : 0x%x\n"
-			"   product : 0x%x\n"
-			"   version : %d\n",
-			BUS_NAME[id.bustype],
-			id.vendor, id.product, id.version);
-	rc = ioctl(fd,EVIOCGNAME(sizeof(buf)),buf);
-	if (rc >= 0)
-		fprintf(stderr,"   name    : \"%.*s\"\n",rc,buf);
-	rc = ioctl(fd,EVIOCGPHYS(sizeof(buf)),buf);
-	if (rc >= 0)
-		fprintf(stderr,"   phys    : \"%.*s\"\n",rc,buf);
-	rc = ioctl(fd,EVIOCGUNIQ(sizeof(buf)),buf);
-	if (rc >= 0)
-		fprintf(stderr,"   uniq    : \"%.*s\"\n",rc,buf);
-	rc = ioctl(fd,EVIOCGBIT(0,sizeof(bits)),bits);
-	if (rc >= 0) {
-		fprintf(stderr,"   bits ev :");
-		for (bit = 0; bit < rc*8 && bit < EV_MAX; bit++) {
-			if (test_bit(bit,bits))
-				fprintf(stderr," %s", EV_NAME[bit]);
-		}
-		fprintf(stderr,"\n");
-	}
-	fprintf(stderr,"\n");
+	if (rc < 0)
+                return -1;
+
+        memset(name, 0, sizeof(name));
+        memset(phys, 0, sizeof(phys));
+        memset(evtmap, 0, sizeof(evtmap));
+
+	ioctl(fd, EVIOCGNAME(sizeof(name)-1), name);
+	ioctl(fd, EVIOCGPHYS(sizeof(phys)-1), phys);
+	evts = ioctl(fd, EVIOCGBIT(0,sizeof(evtmap)), evtmap);
+
+        if (!verbose) {
+                memset(buf, 0, sizeof(buf));
+                for (evt = 0, pos = 0;
+                     evt < evts*8 && evt < EV_MAX;
+                     evt++) {
+                        if (evt == EV_SYN || evt == EV_REP)
+                                continue;
+                        if (!test_bit(evt,evtmap))
+                                continue;
+                        if (pos >= sizeof(buf))
+                                continue;
+                        pos += snprintf(buf+pos, sizeof(buf)-pos, "%s%s",
+                                        pos ? " " : "",
+                                        EV_NAME[evt]);
+                }
+                fprintf(stderr, "%2d: %04x:%04x %-6.6s %-16.16s %-24.24s %-16s\n", nr,
+                        id.vendor, id.product, BUS_NAME[id.bustype],
+                        phys, name, buf);
+        } else {
+                fprintf(stderr, "   id   : %04x:%04x, %s, v%d\n",
+                        id.vendor, id.product, BUS_NAME[id.bustype], id.version);
+                fprintf(stderr, "   phys : \"%s\"\n",phys);
+                fprintf(stderr, "   name : \"%s\"\n",name);
+
+                for (evt = 0; evt < evts*8 && evt < EV_MAX; evt++) {
+                        if (evt == EV_SYN || evt == EV_REP)
+                                continue;
+                        if (!test_bit(evt,evtmap))
+                                continue;
+                        bits = ioctl(fd, EVIOCGBIT(evt,sizeof(bitmap)), bitmap);
+                        memset(buf, 0, sizeof(buf));
+                        for (bit = 0, count = 0, pos = 0;
+                             bit < bits*8 && bit < EV_TYPE_MAX[evt];
+                             bit++) {
+                                if (!test_bit(bit,bitmap))
+                                        continue;
+                                count++;
+                                if (pos >= sizeof(buf))
+                                        continue;
+                                pos += snprintf(buf+pos, sizeof(buf)-pos, "%s%s",
+                                                pos ? " " : "",
+                                                EV_TYPE_NAME[evt][bit]);
+                        }
+                        if (pos >= sizeof(buf)) {
+                                fprintf(stderr, "   %-4.4s : [ %d codes ]\n",
+                                        EV_NAME[evt], count);
+                        } else {
+                                fprintf(stderr, "   %-4.4s : %s\n",
+                                        EV_NAME[evt], buf);
+                        }
+                }
+
+                fprintf(stderr,"\n");
+        }
+
+        return 0;
 }
 
 /* ------------------------------------------------------------------ */

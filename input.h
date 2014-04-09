@@ -24,6 +24,6 @@ static __inline__ int test_bit(int nr, BITFIELD * addr)
 
 /* ------------------------------------------------------------------ */
 
-int device_open(int nr, int verbose);
-void device_info(int fd);
+int device_open(int nr, bool verbose);
+int device_info(int nr, int fd, bool verbose);
 void print_event(struct input_event *event);
