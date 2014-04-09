@@ -28,4 +28,4 @@ Default is to print all devices.
 input\-events(8)
 
 .SH AUTHOR
-Gerd Knorr.
+Gerd Hoffmann <kraxel@redhat.com>

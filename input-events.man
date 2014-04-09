@@ -31,4 +31,4 @@ The program will quit after \fIsec\fR seconds without activity.
 lsinput(8)
 
 .SH AUTHOR
-Gerd Knorr.
+Gerd Hoffmann <kraxel@redhat.com>

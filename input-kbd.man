@@ -51,4 +51,4 @@ Key names are also accepted instead of keycodes, like this:
 	0x0001 = KEY_F9
  
 .SH AUTHOR
-Gerd Knorr.
+Gerd Hoffmann <kraxel@redhat.com>
