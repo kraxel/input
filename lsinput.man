@@ -5,11 +5,23 @@ lsinput \- list input devices
 
 .SH SYNOPSIS
 .B lsinput
+\fBlsinput\fR [\fB\-v\fR]\ [\fB\-s\fR\ \fIdevnr\fR]
 
 .SH DESCRIPTION
 .PP
 \fBlsinput\fR displays a list of all input devices of the kernel,
 along with some information about each device.
+
+.SH OPTIONS
+.TP
+\fB\-v\fR
+Be verbose, print more details on the input devices.
+Default is to use a compact format with one line per device.
+
+.TP
+\fB\-s\fR\ \fIdevnr\fR
+Specify the device to print.
+Default is to print all devices.
 
 .SH SEE ALSO
 .PP
