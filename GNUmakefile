@@ -6,7 +6,8 @@ include mk/Variables.mk
 CFLAGS	+= -DVERSION='"$(VERSION)"'
 
 # build
-TARGETS	:= lsinput input-events input-kbd input-send input-recv lircd.conf
+TARGETS	:= input-events input-kbd input-send input-recv
+TARGETS	+= lsinput emulate-key lircd.conf
 HEADERS	:= EV.h REL.h ABS.h MSC.h LED.h SND.h REP.h KEY.h BTN.h BUS.h SW.h
 
 # default target
@@ -39,6 +40,7 @@ input-events: input-events.o input.o
 input-kbd: input-kbd.o input.o
 input-send: input-send.o input.o tcp.o
 input-recv: input-recv.o input.o tcp.o
+emulate-key: emulate-key.o input.o
 
 input.o: input.c $(HEADERS)
 
