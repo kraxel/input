@@ -14,16 +14,6 @@ HEADERS	:= EV.h REL.h ABS.h MSC.h LED.h SND.h REP.h KEY.h BTN.h BUS.h SW.h
 all: build
 
 
-#################################################################
-# poor man's autoconf ;-)
-
-include mk/Autoconf.mk
-
-define make-config
-LIB		:= $(LIB)
-endef
-
-
 ########################################################################
 # rules
 
