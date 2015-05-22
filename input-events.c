@@ -25,6 +25,7 @@ static void show_events(int nr, int timeout, int grab)
 	device_info(nr, fd, true);
 
 	if (grab) {
+		usleep(100000); // let kernel process return key-up event
 		if (-1 == ioctl(fd,EVIOCGRAB,1)) {
 			perror("ioctl EVIOCGRAB(1)");
 			close(fd);
