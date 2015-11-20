@@ -9,7 +9,7 @@
 
 /* ------------------------------------------------------------------ */
 
-static void list_devices(int devnr, bool verbose)
+static void list_devices(int devnr, int verbose)
 {
 	int i,fd;
         char filename[32];
@@ -41,7 +41,7 @@ static int usage(char *prog, int error)
 
 int main(int argc, char *argv[])
 {
-        bool verbose = false;
+        int verbose = 0;
         int devnr = -1;
         int c;
 
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 			devnr = atoi(optarg);
 			break;
 		case 'v':
-			verbose = true;
+			verbose++;
 			break;
 		case 'h':
 			usage(argv[0],0);

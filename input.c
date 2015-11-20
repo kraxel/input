@@ -81,7 +81,7 @@ char *BUS_NAME[] = {
 
 /* ------------------------------------------------------------------ */
 
-int device_open(int nr, bool verbose)
+int device_open(int nr, int verbose)
 {
 	char filename[32];
 	int fd;
@@ -100,7 +100,7 @@ int device_open(int nr, bool verbose)
 	return fd;
 }
 
-int device_info(int nr, int fd, bool verbose)
+int device_info(int nr, int fd, int verbose)
 {
 	struct input_id id;
 	char name[64];
