@@ -103,6 +103,7 @@ int device_open(int nr, int verbose)
 int device_info(int nr, int fd, int verbose)
 {
 	struct input_id id;
+        struct input_absinfo abs;
 	char name[64];
 	char phys[64];
 	char buf[64];
@@ -165,9 +166,29 @@ int device_info(int nr, int fd, int verbose)
                                                 pos ? " " : "",
                                                 EV_TYPE_NAME[evt][bit]);
                         }
-                        if (pos >= sizeof(buf)) {
+                        if (pos >= sizeof(buf) ||
+                            ((verbose > 1) && (evt == EV_ABS))) {
                                 fprintf(stderr, "   %-4.4s : [ %d codes ]\n",
                                         EV_NAME[evt], count);
+                                if (verbose > 1) {
+                                        for (bit = 0, count = 0, pos = 0;
+                                             bit < bits*8 && bit < EV_TYPE_MAX[evt];
+                                             bit++) {
+                                                if (!test_bit(bit,bitmap))
+                                                        continue;
+                                                if (evt == EV_ABS) {
+                                                        ioctl(fd, EVIOCGABS(bit), &abs);
+                                                        fprintf(stderr, "          "
+                                                                "%-16s [ %5d, %5d ]\n",
+                                                                EV_TYPE_NAME[evt][bit],
+                                                                abs.minimum,
+                                                                abs.maximum);
+                                                } else {
+                                                        fprintf(stderr, "          %s\n",
+                                                                EV_TYPE_NAME[evt][bit]);
+                                                }
+                                        }
+                                }
                         } else {
                                 fprintf(stderr, "   %-4.4s : %s\n",
                                         EV_NAME[evt], buf);
