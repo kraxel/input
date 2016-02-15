@@ -122,14 +122,17 @@ static void kbd_map_print(FILE *fp, struct kbd_map *map, int complete)
 	}
 }
 
-static int kbd_map_parse(FILE *fp, struct kbd_map *map)
+static struct kbd_map* kbd_map_parse(FILE *fp)
 {
 	struct kbd_entry entry;
+	struct kbd_map *map;
 	char line[1024],scancode[80],keycode[80];
 	char *c;
 	int i;
 	int idx = 0;
 
+	map = malloc(sizeof(*map));
+	memset(map,0,sizeof(*map));
 	while ((NULL != fgets(line,sizeof(line),fp)) && (idx < map->keys)) {
 		c = strchr(line,'#');
 		if (c)
@@ -142,7 +145,7 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 
 		if (2 != sscanf(line," %80s = %80s", scancode, keycode)) {
 			fprintf(stderr,"parse error: %s",line);
-			return -1;
+			return NULL;
 		}
 
 		/* parse scancode */
@@ -155,7 +158,7 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 		if (entry.scancode <  0) {
 			fprintf(stderr,"scancode %d invalid\n",
 				entry.scancode);
-			return -1;
+			return NULL;
 		}
 
 		/* parse keycode */
@@ -172,9 +175,16 @@ static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 
 		fprintf(stderr,"set: ");
 		kbd_key_print(stderr,entry.scancode,entry.keycode);
-		map->map[idx++] = entry;
+
+		if (map->size >= map->alloc) {
+			map->alloc += 64;
+			map->map = realloc(map->map, map->alloc * sizeof(entry));
+		}
+		map->map[map->size] = entry;
+		map->size++;
+
 	}
-	return 0;
+	return map;
 }
 
 /* ------------------------------------------------------------------ */
@@ -216,13 +226,6 @@ static int set_kbd(int fd, unsigned int protocol_version, char *mapfile)
 	struct kbd_map *map;
 	FILE *fp;
 
-	map = kbd_map_read(fd, protocol_version);
-	if (NULL == map) {
-		fprintf(stderr,"device has no map\n");
-		close(fd);
-		return -1;
-	}
-
 	if (0 == strcmp(mapfile,"-"))
 		fp = stdin;
 	else {
@@ -234,7 +237,8 @@ static int set_kbd(int fd, unsigned int protocol_version, char *mapfile)
 		}
 	}
 
-	if (0 != kbd_map_parse(fp,map) ||
+	map = kbd_map_parse(fp);
+	if (map == NULL ||
 	    0 != kbd_map_write(fd,map)) {
 		return -1;
 	}
