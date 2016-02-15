@@ -125,11 +125,21 @@ static void kbd_map_print(FILE *fp, struct kbd_map *map, int complete)
 static int kbd_map_parse(FILE *fp, struct kbd_map *map)
 {
 	struct kbd_entry entry;
-	char line[80],scancode[80],keycode[80];
+	char line[1024],scancode[80],keycode[80];
+	char *c;
 	int i;
 	int idx = 0;
 
 	while ((NULL != fgets(line,sizeof(line),fp)) && (idx < map->keys)) {
+		c = strchr(line,'#');
+		if (c)
+                        *c = 0;
+		c = line;
+		while (*c == ' ' || *c == '\t')
+                        c++;
+		if (!*c || *c == '\n')
+                        continue; // Blank or comment line
+
 		if (2 != sscanf(line," %80s = %80s", scancode, keycode)) {
 			fprintf(stderr,"parse error: %s",line);
 			return -1;

@@ -45,10 +45,16 @@ The index of the input device to use (0 for /dev/input/event0 and so on).
 .TP
 \fB\-f\fR \fIfile\fR
 Read a keyboard map from a file and reconfigure the device with this map.
+If the file name is '-' then stdin is used.
 The map file uses the same format as the output of this command.
+Blank lines are ignored.  A '#' character and anything following it on the same line are ignored as a comment.
+Scancodes and keycodes are decimal values unless proceeded by "0x" for hexadecimal.
+To remove a mapping entirely, set it to 0x00 (RESERVED).
 Key names are also accepted instead of keycodes, like this: 
 .IP
 	0x0001 = KEY_F9
- 
+.TP
+Be careful setting values from 0 to 9, as they will be parsed as the key symbols, not the decimal numbers.  If you want to list a single-digit decimal keycode, specify it as a hexadecimal value to remove any ambiguity.
+
 .SH AUTHOR
 Gerd Hoffmann <kraxel@redhat.com>
