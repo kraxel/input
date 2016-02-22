@@ -107,8 +107,12 @@ static int kbd_map_write(int fh, struct kbd_map *map)
 
 static void kbd_key_print(FILE *fp, int scancode, int keycode)
 {
-	fprintf(fp, "0x%04x = %3d  # %s\n",
-		scancode, keycode, ev_type_name(EV_KEY, keycode));
+	if ( keycode < 10 )
+		fprintf(fp, "0x%04x = 0x%x  # %s\n",
+			scancode, keycode, ev_type_name(EV_KEY, keycode));
+	else
+		fprintf(fp, "0x%04x = %3d  # %s\n",
+			scancode, keycode, ev_type_name(EV_KEY, keycode));
 }
 
 static void kbd_map_print(FILE *fp, struct kbd_map *map, int complete)
@@ -129,31 +133,26 @@ static struct kbd_map* kbd_map_parse(FILE *fp)
 	char line[1024],scancode[80],keycode[80];
 	char *c;
 	int i;
-	int idx = 0;
 
 	map = malloc(sizeof(*map));
 	memset(map,0,sizeof(*map));
-	while ((NULL != fgets(line,sizeof(line),fp)) && (idx < map->keys)) {
+	while (NULL != fgets(line,sizeof(line),fp)) {
 		c = strchr(line,'#');
 		if (c)
-                        *c = 0;
+			*c = 0;
 		c = line;
 		while (*c == ' ' || *c == '\t')
-                        c++;
+			c++;
 		if (!*c || *c == '\n')
-                        continue; // Blank or comment line
+			continue; // Blank or comment line
 
-		if (2 != sscanf(line," %80s = %80s", scancode, keycode)) {
+		if (2 != sscanf(line," %79s = %79s", scancode, keycode)) {
 			fprintf(stderr,"parse error: %s",line);
 			return NULL;
 		}
 
 		/* parse scancode */
-		if (0 == strncasecmp(scancode,"0x",2)) {
-			entry.scancode = strtol(scancode, NULL, 16);
-		} else {
-			entry.scancode = strtol(scancode, NULL, 10);
-		}
+                entry.scancode = strtol(scancode, NULL, 0);
 
 		if (entry.scancode <  0) {
 			fprintf(stderr,"scancode %d invalid\n",
@@ -169,7 +168,7 @@ static struct kbd_map* kbd_map_parse(FILE *fp)
 				break;
 		}
 		if (i == KEY_MAX)
-			entry.keycode = atoi(keycode);
+			entry.keycode = strtol(keycode, NULL, 0);
 		else
 			entry.keycode = i;
 
