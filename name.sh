@@ -1,7 +1,11 @@
 #!/bin/sh
 
 TYPE="$1"
-INPUT="/usr/include/linux/input.h"
+if test -f "/usr/include/linux/input-event-codes.h"; then
+	INPUT="/usr/include/linux/input-event-codes.h"
+else
+	INPUT="/usr/include/linux/input.h"
+fi
 
 awk "
 	/KEY_MIN_INTERESTING/	{next};
