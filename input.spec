@@ -1,7 +1,7 @@
 Name:         input
 License:      GPLv2+
-Version:      1.2
-Release:      2%{?dist}
+Version:      1.3
+Release:      1%{?dist}
 Summary:      linux input tools
 Group:        Applications/System
 URL:          http://www.kraxel.org/blog/linux/%{name}/
@@ -27,3 +27,6 @@ make prefix=/usr DESTDIR=%{buildroot} STRIP="" install
 %{_mandir}/man8/*.8*
 
 %changelog
+* Wed Feb 22 2017 Gerd Hoffmann <kraxel@redhat.com> 1.3-1
+- new package built with tito
+
