@@ -19,4 +19,4 @@ awk "
 		}
 		printf(\"\t[ %-16s ] = \\\"%s\\\",\n\", \$2, name);
 	}
-" < $INPUT
+" < $INPUT > "${TYPE}.h"

@@ -20,10 +20,10 @@ all: build
 build: $(TARGETS)
 
 $(HEADERS): name.sh
-	sh name.sh $* > $@
+	sh name.sh $*
 
 lircd.conf: lirc.sh 
-	sh lirc.sh > $@
+	sh lirc.sh $@
 
 lsinput: lsinput.o input.o
 input-events: input-events.o input.o
