@@ -37,9 +37,9 @@ input.o: input.c $(HEADERS)
 install: build
 	$(INSTALL_DIR) $(bindir) $(mandir)/man8
 	$(INSTALL_BINARY) lsinput input-events input-kbd input-send input-recv $(bindir)
-	$(INSTALL_DATA) lsinput.man $(mandir)/man8/lsinput.8
-	$(INSTALL_DATA) input-kbd.man $(mandir)/man8/input-kbd.8
-	$(INSTALL_DATA) input-events.man $(mandir)/man8/input-events.8
+	$(INSTALL_DATA) lsinput.8 $(mandir)/man8/lsinput.8
+	$(INSTALL_DATA) input-kbd.8 $(mandir)/man8/input-kbd.8
+	$(INSTALL_DATA) input-events.8 $(mandir)/man8/input-events.8
 
 
 clean:
