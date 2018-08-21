@@ -1,5 +1,5 @@
 # -*-python-*-
-project('fbida', 'c')
+project('input-tools', 'c')
 
 mkname  = find_program('name.sh')
 ev_hdr  = custom_target('ev',  output : 'EV.h',  command : [ mkname, 'EV'  ])
