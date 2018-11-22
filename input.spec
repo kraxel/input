@@ -7,6 +7,8 @@ Group:        Applications/System
 URL:          http://www.kraxel.org/blog/linux/%{name}/
 Source:       http://www.kraxel.org/releases/%{name}/%{name}-%{version}.tar.gz
 
+BuildRequires: gcc
+
 %description
 Tools to handle linux input devices (evdev).
 List devices, dump input events, ...
