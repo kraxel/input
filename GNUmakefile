@@ -7,7 +7,7 @@ CFLAGS	+= -DVERSION='"$(VERSION)"'
 
 # build
 TARGETS	:= input-events input-kbd input-send input-recv
-TARGETS	+= lsinput emulate-key lircd.conf
+TARGETS	+= lsinput lsraw emulate-key lircd.conf
 HEADERS	:= EV.h REL.h ABS.h MSC.h LED.h SND.h REP.h KEY.h BTN.h BUS.h SW.h
 
 # default target
@@ -26,6 +26,7 @@ lircd.conf: lirc.sh
 	sh lirc.sh $@
 
 lsinput: lsinput.o input.o
+lsraw: lsraw.o
 input-events: input-events.o input.o
 input-kbd: input-kbd.o input.o
 input-send: input-send.o input.o tcp.o

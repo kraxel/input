@@ -21,6 +21,10 @@ executable('lsinput',
            install : true)
 install_man('lsinput.8')
 
+executable('lsraw',
+           sources : [ 'lsraw.c', headers ],
+           install : true)
+
 executable('input-events',
            sources : [ 'input-events.c', 'input.c', headers ],
            install : true)
