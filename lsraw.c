@@ -60,7 +60,7 @@ static void print_report(unsigned char *desc, int descsize)
 {
     unsigned data;
     int tag, type, size, bytes;
-    int i, off = 0;
+    int i, lvl = 0, off = 0;
 
     while (off < descsize) {
         if (desc[off] == 0xfe) {
@@ -70,24 +70,64 @@ static void print_report(unsigned char *desc, int descsize)
             tag  = (desc[off] >> 4) & 0x0f;
             type = (desc[off] >> 2) & 0x03;
             size = (desc[off] >> 0) & 0x03;
-            printf("  %-16s %-6s %d  --",
-                   tag_map[type][tag] ?: "?",
-                   type_map[type],
-                   size_map[size]);
-
             data = 0;
             for (i = 0; i < size_map[size]; i++)
                 data |= desc[off + 1 + i] << (8 * i);
-            printf("  %8x  -- ", data);
-
             bytes = size_map[size] + 1;
+
+            switch (desc[off] & 0xfc) {
+            case 0xc0:
+                lvl -= 2;
+                break;
+            }
+
+            printf("  %*s %-*s %-6s %d  --  %8x  -- ",
+                   lvl, "", 20 - lvl,
+                   tag_map[type][tag] ?: "?",
+                   type_map[type],
+                   size_map[size],
+                   data);
             for (i = 0; i < bytes && off + i < descsize; i++)
                 printf(" %02x", desc[off+i]);
             printf("\n");
 
+            switch (desc[off] & 0xfc) {
+            case 0xa0:
+                lvl += 2;
+                break;
+            }
+
             off += bytes;
         }
     }
+}
+
+static void print_device(const char *devname)
+{
+    struct hidraw_report_descriptor desc;
+    int fd, rc, size;
+
+    fd = open(devname, O_RDWR);
+    if (fd < 0) {
+        if (errno != ENOENT) {
+            fprintf(stderr, "%s: %s\n", devname, strerror(errno));
+        }
+        return;
+    }
+
+    size = 0;
+    rc = ioctl(fd, HIDIOCGRDESCSIZE, &size);
+
+    desc.size = size;
+    rc = ioctl(fd, HIDIOCGRDESC, &desc);
+    if (rc < 0) {
+        fprintf(stderr, "%s: HIDIOCGRDESC: %s\n", devname, strerror(errno));
+        return;
+    }
+    close(fd);
+
+    printf("%s (%d)\n", devname, size);
+    print_report(desc.value, size);
 }
 
 static int usage(char *prog, int error)
@@ -101,8 +141,7 @@ static int usage(char *prog, int error)
 
 int main(int argc, char *argv[])
 {
-    struct hidraw_report_descriptor desc;
-    int i, c, fd, rc, size;
+    int i, c;
     char devname[32];
 
     for (;;) {
@@ -118,28 +157,7 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < HIDRAW_MAX_DEVICES; i++) {
         snprintf(devname, sizeof(devname), "/dev/hidraw%d", i);
-        fd = open(devname, O_RDWR);
-        if (fd < 0) {
-            if (errno != ENOENT) {
-                fprintf(stderr, "%s: %s\n", devname, strerror(errno));
-                continue;
-            } else {
-                break;
-            }
-        }
-
-        rc = ioctl(fd, HIDIOCGRDESCSIZE, &size);
-
-        desc.size = size;
-        rc = ioctl(fd, HIDIOCGRDESC, &desc);
-        if (rc < 0) {
-            fprintf(stderr, "%s: HIDIOCGRDESC: %s\n", devname, strerror(errno));
-            continue;
-        }
-        close(fd);
-
-        printf("%s (%d)\n", devname, size);
-        print_report(desc.value, size);
+        print_device(devname);
     }
 
     return 0;
